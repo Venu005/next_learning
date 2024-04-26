@@ -17,9 +17,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { signInSchema } from "@/schemas/signInSchema";
+import { useState } from "react";
 
 export default function SignInForm() {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -31,32 +33,23 @@ export default function SignInForm() {
 
   const { toast } = useToast();
   const onSubmit = async (data: z.infer<typeof signInSchema>) => {
+    setIsSubmitting(true);
     try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        identifier: data.identifier,
-        password: data.password,
-      });
-
-      if (result?.error) {
-        if (result.error == "CredentialsSignin") {
+      const res = await signIn("credentials", { ...data, redirect: false });
+      if (res?.error) {
+        toast({
+          title: "Error",
+          description: res.error,
+          variant: "destructive",
+        });
+        if (res.ok && !res?.error) {
           toast({
-            title: "Login Failed",
-            description: "Incorrect username or password",
-            variant: "destructive",
+            title: "Success",
+            description: "You have successfully signed in",
           });
-        } else {
-          toast({
-            title: "Error",
-            description: result.error,
-            variant: "destructive",
-          });
+          router.push("/dashboard");
         }
-      }
-
-      console.log(result);
-      if (result?.url) {
-        router.replace("/dashboard");
+        setIsSubmitting(false);
       }
     } catch (error) {
       console.error(error);
@@ -65,8 +58,10 @@ export default function SignInForm() {
         description: "An error occurred. Please try again",
         variant: "destructive",
       });
+      setIsSubmitting(false);
+    } finally {
+      setIsSubmitting(false);
     }
-    throw Error;
   };
 
   return (
@@ -102,7 +97,7 @@ export default function SignInForm() {
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit">
+            <Button className="w-full" type="submit" disabled={isSubmitting}>
               Sign In
             </Button>
           </form>
