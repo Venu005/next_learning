@@ -70,6 +70,23 @@ const MessagePage = () => {
                 </FormItem>
               )}
             />
+            {/* <FormField
+              control={form.control}
+              name="createdAt"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      {...field}
+                      value={field.value?.toISOString().split("T")[0]}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
             <Button type="submit">Submit</Button>
           </form>
         </Form>

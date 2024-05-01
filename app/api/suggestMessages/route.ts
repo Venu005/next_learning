@@ -1,4 +1,4 @@
-//TODO: opeani ai key change later
+//TODO: opeani ai key change later change to google
 import OpenAI from "openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { NextResponse } from "next/server";

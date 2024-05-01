@@ -4,7 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "../../auth/[...nextauth]/options";
 import UserModel from "@/models/user";
 
-export default async function DELETE(
+export  async function DELETE(
   req: Request,
   { params }: { params: { messageid: string } }
 ) {
