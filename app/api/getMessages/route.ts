@@ -1,14 +1,15 @@
 import { dbconnect } from "@/lib/db";
 
 import UserModel from "@/models/user";
-import { User, getServerSession } from "next-auth";
+import { User } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "../auth/[...nextauth]/options";
 import mongoose from "mongoose";
-export default async function GET(req: Request) {
+export async function GET(req: Request) {
   await dbconnect();
   const session = await getServerSession(authOptions);
-  const user: User = session?.user;
-  if (!session || !session.user) {
+  const _user: User = session?.user;
+  if (!session || !_user) {
     return Response.json(
       {
         success: false,
@@ -19,7 +20,7 @@ export default async function GET(req: Request) {
       }
     );
   }
-  const userId = new mongoose.Types.ObjectId(user._id);
+  const userId = new mongoose.Types.ObjectId(_user._id);
   // learn aggregation
   try {
     const user = await UserModel.aggregate([
@@ -27,7 +28,7 @@ export default async function GET(req: Request) {
       { $unwind: "$messages" },
       { $sort: { "messages.createdAt": -1 } },
       { $group: { _id: "$_id", messages: { $push: "$messages" } } },
-    ]);
+    ]).exec();
     if (!user || user.length === 0) {
       return Response.json(
         {
@@ -35,7 +36,7 @@ export default async function GET(req: Request) {
           message: "User not found",
         },
         {
-          status: 401,
+          status: 404,
         }
       );
     }
