@@ -1,61 +1,44 @@
 import { dbconnect } from "@/lib/db";
-import UserModel from "@/models/user";
-import { Message } from "@/models/user";
+import UserModel, { Message } from "@/models/user";
 
-export async function POST(req: Request) {
+
+export async function POST(request: Request) {
   await dbconnect();
-  const { username, content } = await req.json();
+  const { username, content } = await request.json();
+
   try {
-    const user = await UserModel.findOne({ username });
+    const user = await UserModel.findOne({ username }).exec();
+
     if (!user) {
       return Response.json(
-        {
-          success: false,
-          message: "User not found",
-        },
-        {
-          status: 404,
-        }
+        { message: "User not found", success: false },
+        { status: 404 }
       );
     }
-    //check again
+
+    // Check if the user is accepting messages
     if (!user.isAcceptingMessages) {
       return Response.json(
-        {
-          success: false,
-          message: "User not accepting messages",
-        },
-        {
-          status: 400,
-        }
+        { message: "User is not accepting messages", success: false },
+        { status: 403 } // 403 Forbidden status
       );
     }
-    const newMessage = {
-      content,
-      createdAt: new Date(),
-    };
+
+    const newMessage = { content, createdAt: new Date() };
+
+    // Push the new message to the user's messages array
     user.messages.push(newMessage as Message);
     await user.save();
 
     return Response.json(
-      {
-        success: true,
-        message: "Message sent successfully",
-      },
-      {
-        status: 200,
-      }
+      { message: "Message sent successfully", success: true },
+      { status: 201 }
     );
   } catch (error) {
-    console.log("failed to send message", error);
+    console.error("Error adding message:", error);
     return Response.json(
-      {
-        success: false,
-        message: "Failed to send message",
-      },
-      {
-        status: 500,
-      }
+      { message: "Internal server error", success: false },
+      { status: 500 }
     );
   }
 }

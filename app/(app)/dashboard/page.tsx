@@ -40,7 +40,7 @@ function UserDashboard() {
     setIsSwitchLoading(true);
     try {
       const response = await axios.get<ApiResponse>("/api/acceptMessage");
-      setValue("acceptMessages", response.data.isAcceptingMesages);
+      setValue("acceptMessages", response.data.isAcceptingMessages);
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
@@ -117,7 +117,7 @@ function UserDashboard() {
   };
 
   if (!session || !session.user) {
-    return <div>Please login</div>;
+    return <div></div>;
   }
 
   const { username } = session.user as User;

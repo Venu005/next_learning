@@ -1,4 +1,4 @@
-"use client";
+"use client"; 
 
 import { useParams, useRouter } from "next/navigation";
 import { ApiResponse } from "@/types/ApiResponse";
@@ -34,7 +34,6 @@ const VerifyPage = () => {
         username: params.username,
         code: data.code,
       });
-
       toast({
         title: "Success",
         description: response.data.message,
